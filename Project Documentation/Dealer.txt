@@ -1,0 +1,111 @@
+
+
+int handValueAceHigh(hand[])
+{
+    int Value;
+    for(int i = 0; i <14; i++) {
+        Value = Value + cardValueAceHigh(hand[i]);
+        return Value;
+    }
+}
+
+int handValueAceLow(hand[])
+{
+    int Value;
+    for(int i = 0; i <14; i++) {
+        Value = Value + cardValueAceLow(hand[i]);
+        return Value;
+    }
+}
+
+int cardValueAceHigh(card)
+{
+    string card;
+    if card=="king"||"Queen"||"Jack"||"Ten"
+        {return 10;}
+        else if card=="Nine"
+        {return 9;}
+        else if card=="Eight"
+        {return 8;}
+        else if card=="Seven"
+        {return 7;}
+        else if card=="Six"
+        {return 6;}
+        else if card=="Five"
+        {return 5;}
+        else if card=="Four"
+        {return 4;}
+        else if card=="Three"
+        {return 3;}
+        else if card=="Two"
+        {return 2;}
+        else if card=="Ace"
+        {return 11;}
+}
+
+int cardValueAceLow(card)
+{
+    string card;
+    if card=="king"||"Queen"||"Jack"||"Ten"
+        {return 10;}
+        else if card=="Nine"
+        {return 9;}
+        else if card=="Eight"
+        {return 8;}
+        else if card=="Seven"
+        {return 7;}
+        else if card=="Six"
+        {return 6;}
+        else if card=="Five"
+        {return 5;}
+        else if card=="Four"
+        {return 4;}
+        else if card=="Three"
+        {return 3;}
+        else if card=="Two"
+        {return 2;}
+        else if card=="Ace"
+        {return 1;}
+}
+
+deal()
+{
+    
+}
+
+draw()
+{
+
+}
+
+playHand()
+{
+    handValue = handValueAceHigh(hand);
+        while handValue <= maxValue{
+            while handValue <= minvalue{
+            draw();
+            handValue = handValueAceHigh(hand);
+            }
+        }
+            
+        if handValue > 21{
+            handvalue = handValueAcelow(hand);
+            while handValue <= minvalue{
+            draw();
+            handValue = handValueAcelow(hand);
+            }
+        }
+        
+}
+
+
+int main()
+{
+    string hand[14];
+    int handValue;
+    int minValue = 16; //dealer draws to 16
+    int maxValue = 17; //dealer stands on 17
+    deal();
+    playHand();
+}
+

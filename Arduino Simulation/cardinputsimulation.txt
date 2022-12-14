@@ -1,0 +1,64 @@
+int Card = 0;
+int cards = 0;
+int card_total = 0;
+
+void setup()
+{
+  pinMode(11, INPUT);
+  pinMode(10, INPUT);
+  pinMode(9, INPUT);
+  pinMode(8, INPUT);
+  pinMode(7, INPUT);
+  pinMode(6, INPUT);
+  pinMode(5, INPUT);
+  pinMode(4, INPUT);
+  pinMode(3, INPUT);
+  pinMode(2, INPUT);
+  pinMode(1, INPUT);
+}
+
+void loop()
+{
+  while(cards < 5){
+  	if (digitalRead(11) == 1){
+    	Card = 11;
+	}
+	else if (digitalRead(10) == 1){
+    	Card = 10;
+	}
+	else if (digitalRead(9) == 1){
+    	Card = 9;
+	}
+	else if (digitalRead(8) == 1){
+    	Card = 8;
+	}
+	else if (digitalRead(7) == 1){
+    	Card = 7;
+	}
+	else if (digitalRead(6) == 1){
+    	Card = 6;
+	}
+	else if (digitalRead(5) == 1){
+    	Card = 5;
+	}
+	else if (digitalRead(4) == 1){
+    	Card = 4;
+	}
+	else if (digitalRead(3) == 1){
+    	Card = 3;
+	}
+	else if (digitalRead(2) == 1){
+    	Card = 2;
+	}
+	else if (digitalRead(1) == 1){
+    	Card = 1;
+	}
+	else{
+      Card = 0;
+    }
+	card_total = card_total + Card;
+  	delay(10); // Delay a little bit to improve simulation performance and give time to click next button
+    cards = cards + 1;
+  }
+  printf("%d/n",card_total);
+}
