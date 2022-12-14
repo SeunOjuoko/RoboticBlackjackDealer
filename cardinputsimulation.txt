@@ -1,0 +1,1045 @@
+//this is just a simulation if we could make it for real we would use RFID chips 
+//and a RFID sensor to find the values written on the cards when they are placed down
+//the switch and stick buttons are how they would work in real life
+#include <Keypad.h>
+#include <Wire.h> 
+#include <LiquidCrystal.h>
+//inisalising everything
+LiquidCrystal lcd(5, 4, 3, 2, A4, A5);
+
+bool player = true;
+bool playerbust = false;
+bool robotbust = false;
+bool thirdt = false;
+bool fourtht = false;
+bool fiftht = false;
+long first = 0;
+long second = 0;
+long third = 0;
+long fourth = 0;
+long fifth = 0;
+long playertotal = 0;
+long robottotal = 0;
+
+char customKey;
+const byte ROWS = 4;
+const byte COLS = 4;
+//an array of 4x4 of the buttons
+char keys[ROWS][COLS] = {
+  {'1','2','3','A'},
+  {'4','5','6','K'},
+  {'7','8','9','Q'},
+  {'T','10','S','J'}
+};
+byte rowPins[ROWS] = {A0, A1, 11, 10}; //connect to the row pinouts of the keypad
+byte colPins[COLS] = {9, 8, 7, 6}; //connect to the column pinouts of the keypad
+
+//initialize an instance of class NewKeypad
+Keypad customKeypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS); 
+
+void setup()
+{
+	lcd.begin(16, 2);               // starts lcd 
+	lcd.setCursor(0,0);
+  	lcd.print("Player's Turn");		//starts asking for cards
+  	delay(1500);
+  	lcd.clear();
+  	lcd.setCursor(0,0);
+  	lcd.print("Your 2 cards?");
+}
+
+
+void loop()
+{
+  customKey = customKeypad.getKey();
+  //a case function to find out which button has been pressed
+  switch(customKey) 
+  {
+    //case for the stick function
+    case 'S':
+    lcd.clear();
+    lcd.setCursor(0,1);
+    lcd.print("Stick");
+    delay(1500);
+    //an if statement to check if its the players turn
+    if(player == true){
+      playertotal = first + second + third + fourth + fifth; //adding up the player total
+      if(playertotal > 21){ // checking if the player is bust
+        playerbust = true;
+      }
+      lcd.clear();
+      lcd.print("Robot's Turn"); //moving onto the robots turn inisalizing everything again
+      thirdt = false;
+      fourtht = false;
+      fiftht = false;
+      player = false;
+      first = 0;
+	  second = 0;
+	  third = 0;
+	  fourth = 0;
+      fifth = 0;
+      delay(1500);
+      break;
+    }
+    else{ //for when the robot has finished there turn
+      robottotal = first + second + third + fourth + fifth;
+      if(robottotal > 21){
+        robotbust = true;
+      }
+      if(robotbust == true && playerbust == true){ //if they are both bust they draw
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("draw");
+        delay(1500);
+        exit(0); //then the game ends
+      }
+      else if(robotbust == true && playerbust == false){//if only the robot is bust the player wins
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("Player won with");
+        lcd.setCursor(0,1);
+        lcd.print(playertotal);
+        delay(1500);
+        exit(0); //then the game ends
+      }
+      else if(robotbust == false && playerbust == true){//if only the player is bust the robot wins
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("Robot won with");
+        lcd.setCursor(0,1);
+        lcd.print(robottotal);
+        delay(1500);
+        exit(0); //then the game ends
+      }
+      else if(robottotal < playertotal){//if the players total is higher that the robots and neither is bust the player wins
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("Player won with");
+        lcd.setCursor(0,1);
+        lcd.print(playertotal);
+        delay(1500);
+        exit(0); //then the game ends
+      }
+      else if(robottotal > playertotal){// if the robots total is higher than the player and they arnt bust then the robot wins
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("Robot won with");
+        lcd.setCursor(0,1);
+        lcd.print(robottotal);
+        delay(1500);
+        exit(0); //then the game ends
+      }
+      else{ // if they have the same amount then they draw
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("draw at");
+        lcd.setCursor(0,1);
+        lcd.print(robottotal);
+        delay(1500);
+        exit(0); //then the game ends
+      }
+    }
+      
+    //case statement for the twist button
+    case 'T':
+    if(second != 0 && thirdt == false){ // to give them a 3rd card
+      lcd.clear();
+      lcd.setCursor(0,1);
+      lcd.print("Twist");
+      thirdt = true; //to check if they have a third card
+      delay(1500);
+      break;
+    }
+    else if(third != 0 && fourtht == false){ // to give them a 4th card
+      lcd.clear();
+      lcd.setCursor(0,1);
+      lcd.print("Twist");
+      fourtht = true;//to check if they have a 4th card
+      delay(1500);
+      break;
+    }
+    else if(fourth != 0 && fiftht == false){ //to give them a 5th card
+      lcd.clear();
+      lcd.setCursor(0,1);
+      lcd.print("Twist");
+      fiftht = true; //to check if they already have a 5th card
+      delay(1500);
+      break;
+    }
+    else if(fiftht == true){ //if they keep pressig twist after there 5th card it gives them an error message  
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("5 cards is the");
+        lcd.setCursor(0,1);
+        lcd.print("limit");
+        delay(1500);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press stick(#)");
+        delay(1500);
+      break;
+    }
+    else{ //if they have not entered there cards it gives them this error message 
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print("enter your cards");
+      delay(1500);
+      break;
+    }
+    
+    //the code for all the number states are the same 
+    //case 1 for if they get an ace and want it to be 1
+    case '1':
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("1");//prints 1 on the screen
+    if (first == 0){//checks if it is the 1st card entered if it is it sets it to 1
+      first = 1;
+      delay(1500);
+      break;
+    }
+    else if (second == 0){//checks if it is the 2st card entered if it is it sets it to 1
+      second = 1;
+      delay(1500);
+      break;
+    }
+    //checks if it is the 3st card entered if it is it sets it to 1
+    //aslo checks if they have 3 cards to ensure they have pressed twist
+    else if (third == 0 && thirdt == true){
+      third = 1;
+      delay(1500);
+      break;
+    }
+    //checks if it is the 4th card entered if it is it sets it to 1
+    //aslo checks if they have 4 cards to ensure they have pressed twist
+    else if (fourth == 0 && fourtht == true){
+      fourth = 1;
+      delay(1500);
+      break;
+      
+    }
+    //checks if it is the 5th card entered if it is it sets it to 1
+    //aslo checks if they have 5 cards to ensure they have pressed twist
+    else if (fifth == 0 && fiftht == true){
+      fifth = 1;
+      delay(1500);
+      break;
+    }
+    else{
+      //if they are adding more than 5 cards it gives them an error message 
+      //telling them 5 is the limit and they should press stick
+      if (fifth != 0){
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("5 cards is the");
+        lcd.setCursor(0,1);
+        lcd.print("limit");
+        delay(1500);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press stick(#)");
+        delay(1500);
+        break;
+      }
+      //telling them they havnt got the 3rd, 4th or 5th card yet and they 
+      //need to press twist to get it
+      else{
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press twist for");
+        lcd.setCursor(0,1);
+        lcd.print("more cards");
+        delay(1500);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press twist(*)");
+        delay(1500);
+        break;
+      }
+    }
+    
+    case '2':
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("2");
+    if (first == 0){
+      first = 2;
+      delay(1500);
+      break;
+    }
+    else if (second == 0){
+      second = 2;
+      delay(1500);
+      break;
+    }
+    else if (third == 0 && thirdt == true){
+      third = 2;
+      delay(4000);
+      break;
+    }
+    else if (fourth == 0 && fourtht == true){
+      fourth = 2;
+      delay(1500);
+      break;
+    }
+    else if (fifth == 0 && fiftht == true){
+      fifth = 2;
+      delay(1500);
+      break;
+    }
+    else{
+      if (fifth != 0){
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("5 cards is the");
+        lcd.setCursor(0,1);
+        lcd.print("limit");
+        delay(1500);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press stick(#)");
+        delay(1500);
+        break;
+      }
+      else{
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press twist for");
+        lcd.setCursor(0,1);
+        lcd.print("more cards");
+        delay(1500);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press twist(*)");
+        delay(1500);
+        break;
+      }
+    }
+    
+    case '3':
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("3");
+    if (first == 0){
+      first = 3;
+      delay(1500);
+      break;
+    }
+    else if (second == 0){
+      second = 3;
+      delay(1500);
+      break;
+    }
+    else if (third == 0 && thirdt == true){
+      third = 3;
+      delay(1500);
+      break;
+    }
+    else if (fourth == 0 && fourtht == true){
+      fourth = 3;
+      delay(1500);
+      break;
+    }
+    else if (fifth == 0 && fiftht == true){
+      fifth = 3;
+      delay(1500);
+      break;
+    }
+    else{
+      if (fifth != 0){
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("5 cards is the");
+        lcd.setCursor(0,1);
+        lcd.print("limit");
+        delay(1500);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press stick(#)");
+        delay(1500);
+        break;
+      }
+      else{
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press twist for");
+        lcd.setCursor(0,1);
+        lcd.print("more cards");
+        delay(1500);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press twist(*)");
+        delay(1500);
+        break;
+      }
+    }
+
+    
+    case '4':
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("4");
+    if (first == 0){
+      first = 4;
+      delay(1500);
+      break;
+    }
+    else if (second == 0){
+      second = 4;
+      delay(1500);
+      break;
+    }
+    else if (third == 0 && thirdt == true){
+      third = 4;
+      delay(1500);
+      break;
+    }
+    else if (fourth == 0 && fourtht == true){
+      fourth = 4;
+      delay(1500);
+      break;
+    }
+    else if (fifth == 0 && fiftht == true){
+      fifth = 4;
+      delay(1500);
+      break;
+    }
+    else{
+      if (fifth != 0){
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("5 cards is the");
+        lcd.setCursor(0,1);
+        lcd.print("limit");
+        delay(1500);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press stick(#)");
+        delay(1500);
+        break;
+      }
+      else{
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press twist for");
+        lcd.setCursor(0,1);
+        lcd.print("more cards");
+        delay(1500);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press twist(*)");
+        delay(1500);
+        break;
+      }
+    }
+
+	case '5':
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("5");
+    if (first == 0){
+      first = 5;
+      delay(1500);
+      break;
+    }
+    else if (second == 0){
+      second = 5;
+      delay(1500);
+      break;
+    }
+    else if (third == 0 && thirdt == true){
+      third = 5;
+      delay(1500);
+      break;
+    }
+    else if (fourth == 0 && fourtht == true){
+      fourth = 5;
+      delay(1500);
+      break;
+    }
+    else if (fifth == 0 && fiftht == true){
+      fifth = 5;
+      delay(1500);
+      break;
+    }
+    else{
+      if (fifth != 0){
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("5 cards is the");
+        lcd.setCursor(0,1);
+        lcd.print("limit");
+        delay(1500);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press stick(#)");
+        delay(1500);
+        break;
+      }
+      else{
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press twist for");
+        lcd.setCursor(0,1);
+        lcd.print("more cards");
+        delay(1500);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press twist(*)");
+        delay(1500);
+        break;
+      } 
+    }
+  
+	case '6':
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("6");
+    if (first == 0){
+      first = 6;
+      delay(1500);
+      break;
+    }
+    else if (second == 0){
+      second = 6;
+      delay(1500);
+      break;
+    }
+    else if (third == 0 && thirdt == true){
+      third = 6;
+      delay(1500);
+      break;
+    }
+    else if (fourth == 0 && fourtht == true){
+      fourth = 6;
+      delay(1500);
+      break;
+    }
+    else if (fifth == 0 && fiftht == true){
+      fifth = 6;
+      delay(1500);
+      break;
+    }
+    else{
+      if (fifth != 0){
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("5 cards is the");
+        lcd.setCursor(0,1);
+        lcd.print("limit");
+        delay(1500);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press stick(#)");
+        delay(1500);
+        break;
+      }
+      else{
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press twist for");
+        lcd.setCursor(0,1);
+        lcd.print("more cards");
+        delay(1500);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press twist(*)");
+        delay(1500);
+        break;
+      }
+    }
+  
+	case '7':
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("7");
+    if (first == 0){
+      first = 7;
+      delay(1500);
+      break;
+    }
+    else if (second == 0){
+      second = 7;
+      delay(1500);
+      break;
+    }
+    else if (third == 0 && thirdt == true){
+      third = 7;
+      delay(1500);
+      break;
+    }
+    else if (fourth == 0 && fourtht == true){
+      fourth = 7;
+      delay(1500);
+      break;
+    }
+    else if (fifth == 0 && fiftht == true){
+      fifth = 7;
+      delay(1500);
+      break;
+    }
+    else{
+      if (fifth != 0){
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("5 cards is the");
+        lcd.setCursor(0,1);
+        lcd.print("limit");
+        delay(1500);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press stick(#)");
+        delay(1500);
+        break;
+      }
+      else{
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press twist for");
+        lcd.setCursor(0,1);
+        lcd.print("more cards");
+        delay(1500);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press twist(*)");
+        delay(1500);
+        break;
+      }
+    }
+  
+	case '8':
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("8");
+    if (first == 0){
+      first = 8;
+      delay(1500);
+      break;
+    }
+    else if (second == 0){
+      second = 8;
+      delay(1500);
+      break;
+    }
+    else if (third == 0 && thirdt == true){
+      third = 8;
+      delay(1500);
+      break;
+    }
+    else if (fourth == 0 && fourtht == true){
+      fourth = 8;
+      delay(1500);
+      break;
+    }
+    else if (fifth == 0 && fiftht == true){
+      fifth = 8;
+      delay(1500);
+      break;
+    }
+    else{
+      if (fifth != 0){
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("5 cards is the");
+        lcd.setCursor(0,1);
+        lcd.print("limit");
+        delay(1500);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press stick(#)");
+        delay(1500);
+        break;
+      }
+      else{
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press twist for");
+        lcd.setCursor(0,1);
+        lcd.print("more cards");
+        delay(1500);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press twist(*)");
+        delay(1500);
+        break;
+      }
+    }
+  
+	case '9':
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("9");
+    if (first == 0){
+      first = 9;
+      delay(1500);
+      break;
+    }
+    else if (second == 0){
+      second = 9;
+      delay(1500);
+      break;
+    }
+    else if (third == 0 && thirdt == true){
+      third = 9;
+      delay(1500);
+      break;
+    }
+    else if (fourth == 0 && fourtht == true){
+      fourth = 9;
+      delay(1500);
+      break;
+    }
+    else if (fifth == 0 && fiftht == true){
+      fifth = 9;
+      delay(1500);
+      break;
+    }
+    else{
+      if (fifth != 0){
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("5 cards is the");
+        lcd.setCursor(0,1);
+        lcd.print("limit");
+        delay(1500);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press stick(#)");
+        delay(1500);
+        break;
+      }
+      else{
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press twist for");
+        lcd.setCursor(0,1);
+        lcd.print("more cards");
+        delay(1500);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press twist(*)");
+        delay(1500);
+        break;
+      }
+    }
+  
+	case '0':
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("10");
+    if (first == 0){
+      first = 10;
+      delay(1500);
+      break;
+    }
+    else if (second == 0){
+      second = 10;
+      delay(1500);
+      break;
+    }
+    else if (third == 0 && thirdt == true){
+      third = 10;
+      delay(1500);
+      break;
+    }
+    else if (fourth == 0 && fourtht == true){
+      fourth = 10;
+      delay(1500);
+      break;
+    }
+    else if (fifth == 0 && fiftht == true){
+      fifth = 10;
+      delay(1500);
+      break;
+    }
+    else{
+      if (fifth != 0){
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("5 cards is the");
+        lcd.setCursor(0,1);
+        lcd.print("limit");
+        delay(1500);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press stick(#)");
+        delay(1500);
+        break;
+      }
+      else{
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press twist for");
+        lcd.setCursor(0,1);
+        lcd.print("more cards");
+        delay(1500);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press twist(*)");
+        delay(1500);
+        break;
+      }
+    }
+  
+  	case 'J':
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("10");
+    if (first == 0){
+      first = 10;
+      delay(1500);
+      break;
+    }
+    else if (second == 0){
+      second = 10;
+      delay(1500);
+      break;
+    }
+    else if (third == 0 && thirdt == true){
+      third = 10;
+      delay(1500);
+      break;
+    }
+    else if (fourth == 0 && fourtht == true){
+      fourth = 10;
+      delay(1500);
+      break;
+    }
+    else if (fifth == 0 && fiftht == true){
+      fifth = 10;
+      delay(1500);
+      break;
+    }
+    else{
+      if (fifth != 0){
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("5 cards is the");
+        lcd.setCursor(0,1);
+        lcd.print("limit");
+        delay(1500);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press stick(#)");
+        delay(1500);
+        break;
+      }
+      else{
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press twist for");
+        lcd.setCursor(0,1);
+        lcd.print("more cards");
+        delay(1500);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press twist(*)");
+        delay(1500);
+        break;
+      }
+    }
+  
+  	case 'Q':
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("10");
+    if (first == 0){
+      first = 10;
+      delay(1500);
+      break;
+    }
+    else if (second == 0){
+      second = 10;
+      delay(1500);
+      break;
+    }
+    else if (third == 0 && thirdt == true){
+      third = 10;
+      delay(1500);
+      break;
+    }
+    else if (fourth == 0 && fourtht == true){
+      fourth = 10;
+      delay(1500);
+      break;
+    }
+    else if (fifth == 0 && fiftht == true){
+      fifth = 10;
+      delay(1500);
+      break;
+    }
+    else{
+      if (fifth != 0){
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("5 cards is the");
+        lcd.setCursor(0,1);
+        lcd.print("limit");
+        delay(1500);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press stick(#)");
+        delay(1500);
+        break;
+      }
+      else{
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press twist for");
+        lcd.setCursor(0,1);
+        lcd.print("more cards");
+        delay(1500);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press twist(*)");
+        delay(1500);
+        break;
+      }
+    }
+  
+  	case 'K':
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("10");
+    if (first == 0){
+      first = 10;
+      delay(1500);
+      break;
+    }
+    else if (second == 0){
+      second = 10;
+      delay(1500);
+      break;
+    }
+    else if (third == 0 && thirdt == true){
+      third = 10;
+      delay(1500);
+      break;
+    }
+    else if (fourth == 0 && fourtht == true){
+      fourth = 10;
+      delay(1500);
+      break;
+    }
+    else if (fifth == 0 && fiftht == true){
+      fifth = 10;
+      delay(1500);
+      break;
+    }
+    else{
+      if (fifth != 0){
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("5 cards is the");
+        lcd.setCursor(0,1);
+        lcd.print("limit");
+        delay(1500);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press stick(#)");
+        delay(1500);
+        break;
+      }
+      else{
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press twist for");
+        lcd.setCursor(0,1);
+        lcd.print("more cards");
+        delay(1500);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press twist(*)");
+        delay(1500);
+        break;
+      }
+    }
+
+  
+  	case 'A':
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("11");
+    if (first == 0){
+      first = 11;
+      delay(1500);
+      break;
+    }
+    else if (second == 0){
+      second = 11;
+      delay(1500);
+      break;
+    }
+    else if (third == 0 && thirdt == true){
+      third = 11;
+      delay(1500);
+      break;
+    }
+    else if (fourth == 0 && fourtht == true){
+      fourth = 11;
+      delay(1500);
+      break;
+    }
+    else if (fifth == 0 && fiftht == true){
+      fifth = 11;
+      delay(1500);
+      break;
+    }
+    else{
+      if (fifth != 0){
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("5 cards is the");
+        lcd.setCursor(0,1);
+        lcd.print("limit");
+        delay(1500);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press stick(#)");
+        delay(1500);
+        break;
+      }
+      else{
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press twist for");
+        lcd.setCursor(0,1);
+        lcd.print("more cards");
+        delay(1500);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("press twist(*)");
+        delay(1500);
+        break;
+      }
+    }
+    
+    default:
+    lcd.setCursor(0,1);
+    if (first == 0){
+      first = 0;
+      break;
+    }
+    else if (second == 0){
+      second = 0;
+      break;
+    }
+    else if (third == 0 && thirdt == true){
+      third = 0;
+      break;
+    }
+    else if (fourth == 0 && fourtht == true){
+      fourth = 0;
+      break;
+    }
+    else if (fifth == 0 && fiftht == true){
+      fifth = 0;
+      break;
+    }
+    else{
+      if (fifth != 0){
+        break;
+      }
+    }
+  }
+}
